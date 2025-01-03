@@ -16,7 +16,7 @@ app.use(express.json());
 app.use(cors({
     origin: [
         'http://localhost:5173',
-        'https://hirespheree.netlify.app',
+        'https://wandau.netlify.app',
     ],
     credentials: true,
 }));
@@ -55,6 +55,42 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
         console.log("successfully connected to MongoDB!");
+
+        // Database 
+        const database = client.db('Wandau');
+        // All Artifacts 
+        const allArtifactsCollection = database.collection('Artifacts');
+
+        // JWT token create and remove APIS 
+        // JWT token create API 
+        app.post('/jwt/create', async (req, res) => {
+            const user = req.body;
+            const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: '6h' });
+            res
+                .cookie('authToken', token, {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: process.env.NODE_ENV === "production" ? "none" : "strict"
+                })
+                .json({
+                    status: true
+                })
+        })
+
+        // JWT token remove API 
+        app.post('/jwt/remove', async (req, res) => {
+            res
+                .clearCookie('authToken', {
+                    httpOnly: true,
+                    secure: process.env.NODE_ENV === 'production',
+                    sameSite: process.env.NODE_ENV === "production" ? "none" : "strict"
+                })
+                .json({
+                    status: true
+                })
+        })
+
+
 
     } finally {
         // Ensures that the client will close when you finish/error
