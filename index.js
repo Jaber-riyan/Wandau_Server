@@ -90,6 +90,34 @@ async function run() {
                 })
         })
 
+        // Add artifacts API 
+        app.post('/add-artifacts', async (req, res) => {
+            const body = req.body;
+            const result = await allArtifactsCollection.insertOne(body);
+            res.json({
+                status: true,
+                data: result
+            })
+        })
+
+        // Get all artifacts API 
+        app.get('/artifacts', async (req, res) => {
+            const result = await allArtifactsCollection.find().toArray();
+            res.json({
+                status: true,
+                data: result
+            })
+        })
+
+        // get all highest like artifacts API 
+        app.get('/featured-artifacts', async (req, res) => {
+            const result = await allArtifactsCollection.find({}).sort({ "likeCount": -1 }).limit(6).toArray();
+            res.json({
+                status: true,
+                data: result
+            })
+        })
+
 
 
     } finally {
