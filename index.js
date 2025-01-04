@@ -149,11 +149,41 @@ async function run() {
         })
 
         // Like Related APIS 
-        app.post('/like/:id', async (req, res) => {
+        // the particular artifact user like details save in database API 
+        app.post('/like/:id', verifyToken, async (req, res) => {
             const { id } = req.params;
+            const { email } = req.query;
+            const body = req.body;
+            if (req.user.email !== email) {
+                return res.status(401).json({ message: "Forbidden Access" });
+            }
+            const exist = await artifactsLikeCollection.findOne({ likeArtifact: id, user: email });
+            if (exist) {
+                return res.json({
+                    status: false,
+                    message: "Already Liked This Artifact"
+                })
+            }
+            const result = await artifactsLikeCollection.insertOne(body);
             res.json({
                 status: true,
-                id
+                result
+            })
+        })
+
+        // increase 1 on artifact API 
+        app.patch('/like/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const doc = {
+                $inc: {
+                    likeCount: 1,
+                }
+            }
+            const result = await allArtifactsCollection.updateOne(query, doc);
+            res.json({
+                status: true,
+                result
             })
         })
 
