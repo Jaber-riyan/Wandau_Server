@@ -109,6 +109,18 @@ async function run() {
             })
         })
 
+        // Get one artifact API 
+        app.get('/artifact/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await allArtifactsCollection.findOne(query);
+            console.log(id);
+            res.json({
+                status: true,
+                data: result
+            })
+        })
+
         // get all highest like artifacts API 
         app.get('/featured-artifacts', async (req, res) => {
             const result = await allArtifactsCollection.find({}).sort({ "likeCount": -1 }).limit(6).toArray();
@@ -118,6 +130,17 @@ async function run() {
             })
         })
 
+        // get single user added artifacts API 
+        app.get('/user-added-artifacts/:email/:name', verifyToken, async (req, res) => {
+            const { email, name } = req.params;
+            // console.log(email, name);
+            const query = { email: email, artifactAddedBy: name };
+            const result = await allArtifactsCollection.find(query).toArray();
+            res.json({
+                status: true,
+                data: result
+            })
+        })
 
 
     } finally {
