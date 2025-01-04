@@ -148,6 +148,21 @@ async function run() {
             })
         })
 
+        // one artifact and artifact related like object delete API 
+        app.delete('/artifact-delete/:id', async (req, res) => {
+            const id = req.params.id;
+            const query1 = { _id: new ObjectId(id) };
+            const resultFromArtifactsCollection = await allArtifactsCollection.deleteOne(query1);
+            const query2 = { likeArtifact: id };
+            const resultFromArtifactsLikeCollection = await artifactsLikeCollection.deleteMany(query2);
+            res.json({
+                status: true,
+                resultFromArtifactsCollection,
+                resultFromArtifactsLikeCollection
+            })
+        })
+
+
         // get all highest like artifacts API 
         app.get('/featured-artifacts', async (req, res) => {
             const result = await allArtifactsCollection.find({}).sort({ "likeCount": -1 }).limit(6).toArray();
