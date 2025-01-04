@@ -26,7 +26,7 @@ app.use(cookieParser());
 
 
 const verifyToken = (req, res, next) => {
-    console.log("Inside the verify token");
+    // console.log("Inside the verify token");
     const token = req?.cookies?.authToken;
     // console.log(token);
     if (!token) {
@@ -184,6 +184,21 @@ async function run() {
             res.json({
                 status: true,
                 result
+            })
+        })
+
+        // get the liked artifacts for an user 
+        app.get('/liked-artifacts/:email', verifyToken, async (req, res) => {
+            const email = req.params.email;
+            if (req.user.email !== email) {
+                return res.status(401).json({ message: "Forbidden Access" });
+            }
+            console.log(email);
+            console.log("aia porci koia dimu :)");
+            const result = await artifactsLikeCollection.find({ user: email }).toArray();
+            res.json({
+                status: true,
+                data: result
             })
         })
 
