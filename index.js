@@ -116,10 +116,35 @@ async function run() {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) };
             const result = await allArtifactsCollection.findOne(query);
-            console.log(id);
+            // console.log(id);
             res.json({
                 status: true,
                 data: result
+            })
+        })
+
+        // update one artifact API 
+        app.patch('/artifact-update/:id', async (req, res) => {
+            const id = req.params.id;
+            const body = req.body;
+            const query = { _id: new ObjectId(id) };
+            const updatedDoc = {
+                $set: {
+                    artifactName: body?.artifactName,
+                    artifactImage: body?.artifactImage,
+                    artifactType: body?.artifactType,
+                    historicalContext: body?.historicalContext,
+                    createdAt: body?.createdAt,
+                    discoveredAt: body?.discoveredAt,
+                    discoveredBy: body?.discoveredBy,
+                    presentLocation: body?.presentLocation
+                }
+            }
+            const result = await allArtifactsCollection.updateOne(query, updatedDoc);
+            res.json({
+                status: true,
+                id,
+                body
             })
         })
 
