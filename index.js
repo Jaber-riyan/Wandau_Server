@@ -58,14 +58,16 @@ async function run() {
 
         // Database 
         const database = client.db('Wandau');
-        // All Artifacts 
+        // All Artifacts Collection
         const allArtifactsCollection = database.collection('Artifacts');
+        // Artifacts Like Collection 
+        const artifactsLikeCollection = database.collection('ArtifactsLike');
 
         // JWT token create and remove APIS 
         // JWT token create API 
         app.post('/jwt/create', async (req, res) => {
             const user = req.body;
-            const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: '6h' });
+            const token = jwt.sign(user, process.env.JWT_SECRET, { expiresIn: '1d' });
             res
                 .cookie('authToken', token, {
                     httpOnly: true,
@@ -131,14 +133,27 @@ async function run() {
         })
 
         // get single user added artifacts API 
-        app.get('/user-added-artifacts/:email/:name', verifyToken, async (req, res) => {
-            const { email, name } = req.params;
+        app.get('/user-added-artifacts/:email', verifyToken, async (req, res) => {
+            const { email } = req.params;
             // console.log(email, name);
-            const query = { email: email, artifactAddedBy: name };
+            // console.log(req.cookies, req.user.email, email);
+            if (req.user.email !== req.params.email) {
+                return res.status(403).json({ message: "Forbidden Access" });
+            }
+            const query = { email: email };
             const result = await allArtifactsCollection.find(query).toArray();
             res.json({
                 status: true,
                 data: result
+            })
+        })
+
+        // Like Related APIS 
+        app.post('/like/:id', async (req, res) => {
+            const { id } = req.params;
+            res.json({
+                status: true,
+                id
             })
         })
 
