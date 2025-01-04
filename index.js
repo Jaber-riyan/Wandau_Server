@@ -233,9 +233,18 @@ async function run() {
             if (req.user.email !== email) {
                 return res.status(401).json({ message: "Forbidden Access" });
             }
-            console.log(email);
-            console.log("aia porci koia dimu :)");
             const result = await artifactsLikeCollection.find({ user: email }).toArray();
+            res.json({
+                status: true,
+                data: result
+            })
+        })
+
+        // get the all persons who liked artifacts API 
+        app.get('/liked-persons/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { likeArtifact: id };
+            const result = await artifactsLikeCollection.find(query).toArray();
             res.json({
                 status: true,
                 data: result
