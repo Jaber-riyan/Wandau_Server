@@ -102,6 +102,28 @@ async function run() {
             })
         })
 
+        // get related jobs by search API 
+        app.get('/artifacts-search', async (req, res) => {
+            // console.log(req.query?.search);
+            const searchValue = req.query?.search;
+            if (!searchValue) {
+                return res.json({
+                    message: "No search value provided"
+                })
+            }
+            const query = {
+                artifactName : {
+                    $regex: searchValue, $options: "i"
+                }
+            };
+            const result = await allArtifactsCollection.find(query).toArray();
+            res.json({
+                status: true,
+                data: result,
+                query
+            })
+        })
+
         // Get all artifacts API 
         app.get('/artifacts', async (req, res) => {
             const result = await allArtifactsCollection.find().toArray();
